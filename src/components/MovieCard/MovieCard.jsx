@@ -5,11 +5,11 @@ const MovieCard = ({ moviesList }) => {
   const { overview, title, releaseDate, posterPath } = moviesList;
   return (
     <article className="film-card">
-      <img className="film-card__img" src={`https://image.tmdb.org/t/p/w500${posterPath}`} alt="Film" />
+      <img className="film-card__img" src={`${posterPath}`} alt="Film" />
       <div className="film-card__description">
         <h2 className="film-card__title">{title}</h2>
         <p className="film-card__release">{releaseDate}</p>
-        <p className="film-card__genre">Genre: Action</p>
+        <p className="film-card__genre">Action</p>
         <p className="film-card__overview">{overview}</p>
       </div>
     </article>

@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import noImage from '../images/no-image.png';
 
 export default class MovieService {
   async getResponse(url) {
@@ -8,6 +9,11 @@ export default class MovieService {
       throw new Error(`Could not fetch ${url}, received ${res.status}`);
     }
     const body = await res.json();
+
+    if (body.results.length === 0) {
+      throw new Error(`Couldn't find the movie`);
+    }
+
     return body;
   }
 
@@ -41,10 +47,10 @@ export default class MovieService {
 
   transformMovie = (movie) => {
     const copyMovie = { ...movie };
+    const imgBase = `https://image.tmdb.org/t/p/w500`;
     let posterPath = copyMovie.poster_path;
-    if (!posterPath) {
-      posterPath = 'https://rudnichka.ru/wp-content/uploads/2020/07/dquestion_app_widget_2_c.png';
-    }
+
+    posterPath = posterPath ? `${imgBase}${posterPath}` : noImage;
 
     const overview = this.cutText(copyMovie.overview);
 
