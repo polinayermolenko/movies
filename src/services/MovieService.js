@@ -13,7 +13,6 @@ export default class MovieService {
     if (body.results.length === 0) {
       throw new Error(`Couldn't find the movie`);
     }
-
     return body;
   }
 
@@ -24,11 +23,18 @@ export default class MovieService {
     return res.results;
   }
 
-  async getMoviesByReturn() {
+  async getMoviesBySearch(search, page = 1) {
     const movies = await this.getResponse(
-      `https://api.themoviedb.org/3/search/movie?api_key=7201476bfa706101ff5b93dcaddc37e7&language=en-US&query=return&page=1&include_adult=false`
+      `https://api.themoviedb.org/3/search/movie?api_key=7201476bfa706101ff5b93dcaddc37e7&language=en-US&query=${search}&page=${page}&include_adult=false`
     );
-    return movies.results.map(this.transformMovie);
+
+    const moviesData = {
+      page: movies.page,
+      totalResults: movies.total_results,
+    };
+
+    const moviesResults = movies.results.map(this.transformMovie);
+    return { ...moviesData, results: moviesResults };
   }
 
   cutText = (text) => {
@@ -70,3 +76,6 @@ export default class MovieService {
     };
   };
 }
+
+// const mov = new MovieService();
+// mov.getMoviesBySearch('cat').then(body=> console.log(body));
