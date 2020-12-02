@@ -2,6 +2,10 @@ import { format } from 'date-fns';
 import noImage from '../images/no-image.png';
 
 export default class MovieService {
+  apiBase = `https://api.themoviedb.org/3/`;
+
+  apiKey = `api_key=7201476bfa706101ff5b93dcaddc37e7`;
+
   async getResponse(url) {
     const res = await fetch(url);
 
@@ -10,22 +14,26 @@ export default class MovieService {
     }
     const body = await res.json();
 
-    if (body.results.length === 0) {
-      throw new Error(`Couldn't find the movie`);
-    }
     return body;
   }
 
-  async getAllMovies() {
-    const res = await this.getResponse(
-      `https://api.themoviedb.org/3/search/movie?api_key=7201476bfa706101ff5b93dcaddc37e7&query=movie`
+  async getSessionId() {
+    const { guest_session_id: guestSessionId } = await this.getResponse(
+      `${this.apiBase}authentication/guest_session/new?${this.apiKey}`
     );
-    return res.results;
+    return guestSessionId;
+  }
+
+  async getRatedmovies(guestSessionId) {
+    const ratedMovies = await this.getResponse(
+      `${this.apiBase}guest_session/${guestSessionId}/rated/movies?${this.apiKey}&language=en-US&sort_by=created_at.asc`
+    );
+    return ratedMovies;
   }
 
   async getMoviesBySearch(search, page = 1) {
     const movies = await this.getResponse(
-      `https://api.themoviedb.org/3/search/movie?api_key=7201476bfa706101ff5b93dcaddc37e7&language=en-US&query=${search}&page=${page}&include_adult=false`
+      `${this.apiBase}search/movie?${this.apiKey}&language=en-US&query=${search}&page=${page}&include_adult=false`
     );
 
     const moviesData = {
@@ -33,8 +41,17 @@ export default class MovieService {
       totalResults: movies.total_results,
     };
 
+    if (movies.results.length === 0) {
+      throw new Error(`Couldn't find the movie`);
+    }
+
     const moviesResults = movies.results.map(this.transformMovie);
     return { ...moviesData, results: moviesResults };
+  }
+
+  async getGenres() {
+    const { genres } = await this.getResponse(`${this.apiBase}genre/movie/list?${this.apiKey}&language=en-US`);
+    return genres;
   }
 
   cutText = (text) => {
@@ -71,6 +88,7 @@ export default class MovieService {
       id: movie.id,
       posterPath,
       title: movie.title,
+      genreIds: movie.genre_ids,
       releaseDate,
       overview,
     };
@@ -78,4 +96,4 @@ export default class MovieService {
 }
 
 // const mov = new MovieService();
-// mov.getMoviesBySearch('cat').then(body=> console.log(body));
+// mov.getMoviesBySearch('nokpl[kohjo[').then(body=> console.log(body));

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Spin, Alert, Pagination } from 'antd';
+import { Spin, Alert, Pagination, Tabs } from 'antd';
 import { debounce } from 'lodash';
 import MovieList from '../MovieList/MovieList';
 import MovieService from '../../services/MovieService';
@@ -9,6 +9,10 @@ export default class App extends Component {
   movies = new MovieService();
 
   timerId = null;
+
+  genreData = null;
+
+  sessionId = null;
 
   state = {
     moviesList: null,
@@ -27,6 +31,16 @@ export default class App extends Component {
         loadingPage: false,
       });
     }, 1000);
+
+    this.movies.getSessionId().then((body) => {
+      this.sessionId = body;
+      return this.sessionId;
+    });
+
+    this.movies.getGenres().then((body) => {
+      this.genreData = body.reduce((acc, cur) => ({ ...acc, [cur.id]: cur.name }), {});
+      return this.genreData;
+    });
   }
 
   componentWillUnmount() {
@@ -83,6 +97,7 @@ export default class App extends Component {
 
   render() {
     const { moviesList, loading, error, hasData, loadingPage, page, totalResults } = this.state;
+    const { TabPane } = Tabs;
 
     if (loadingPage) {
       return <Spin tip="Loading ..." />;
@@ -90,25 +105,32 @@ export default class App extends Component {
 
     const errorMessage = error && <Alert message="Error" description="Couldn't find the movie" type="error" showIcon />;
     const spinner = loading && <Spin tip="Loading ..." />;
-    const content = hasData && !(loading || error) && <MovieList moviesList={moviesList} />;
+    const content = hasData && !(loading || error) && <MovieList moviesList={moviesList} genreData={this.genreData} />;
 
     return (
       <main className="container">
-        <Search onSearch={this.onSearchChange} />
-        <section className="films">
-          {spinner}
-          {content}
-          {errorMessage}
-        </section>
-        {hasData && !(loading || error) && (
-          <Pagination
-            current={page}
-            total={totalResults}
-            pageSize={20}
-            showSizeChanger={false}
-            onChange={this.onPageChange}
-          />
-        )}
+        <Tabs defaultActiveKey="1" size="large" centered>
+          <TabPane tab="Search" key="1">
+            <Search onSearch={this.onSearchChange} />
+            <section className="films">
+              {spinner}
+              {content}
+              {errorMessage}
+            </section>
+            {hasData && !(loading || error) && (
+              <Pagination
+                current={page}
+                total={totalResults}
+                pageSize={20}
+                showSizeChanger={false}
+                onChange={this.onPageChange}
+              />
+            )}
+          </TabPane>
+          <TabPane tab="Rated" key="2">
+            <Spin tip="Hello!" />
+          </TabPane>
+        </Tabs>
       </main>
     );
   }
