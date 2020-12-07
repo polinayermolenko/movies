@@ -24,11 +24,28 @@ export default class MovieService {
     return guestSessionId;
   }
 
-  async getRatedmovies(guestSessionId) {
-    const ratedMovies = await this.getResponse(
-      `${this.apiBase}guest_session/${guestSessionId}/rated/movies?${this.apiKey}&language=en-US&sort_by=created_at.asc`
+  async postMovieRating(id, guestSessionId, rating) {
+    const response = await fetch(
+      `${this.apiBase}movie/${id}/rating?${this.apiKey}&guest_session_id=${guestSessionId}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+        body: JSON.stringify({ value: rating }),
+      }
     );
-    return ratedMovies;
+
+    if (!response.ok) {
+      throw new Error();
+    }
+  }
+
+  async getRatedMovies(guestSessionId) {
+    const ratedMovies = await this.getResponse(
+      `${this.apiBase}guest_session/${guestSessionId}/rated/movies?${this.apiKey}&sort_by=created_at.asc`
+    );
+    return ratedMovies.results.map(this.transformMovie);
   }
 
   async getMoviesBySearch(search, page = 1) {
@@ -91,6 +108,7 @@ export default class MovieService {
       genreIds: movie.genre_ids,
       releaseDate,
       overview,
+      rating: movie.rating,
     };
   };
 }

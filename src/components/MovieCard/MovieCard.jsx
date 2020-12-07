@@ -6,13 +6,21 @@ import MovieService from '../../services/MovieService';
 export default class MovieCard extends Component {
   movies = new MovieService();
 
-  transformGenres = () => {
-    // eslint-disable-next-line react/prop-types
+  rateMovie = (rating) => {
     const {
-      moviesList: { genreIds },
+      movie: { id },
+      guestSessionId,
+      updateRating,
+    } = this.props;
+    this.movies.postMovieRating(id, guestSessionId, rating).then(() => updateRating(guestSessionId, id, rating));
+  };
+
+  transformGenres = () => {
+    const {
+      movie: { genreIds },
       genreData,
     } = this.props;
-    // eslint-disable-next-line react/prop-types
+
     return genreIds.map((id) => {
       return (
         <li key={id} className="film-card__genre-item">
@@ -24,7 +32,8 @@ export default class MovieCard extends Component {
 
   render() {
     const {
-      moviesList: { overview, title, releaseDate, posterPath },
+      // eslint-disable-next-line react/prop-types
+      movie: { overview, title, releaseDate, posterPath, rating },
     } = this.props;
     const genreNames = this.transformGenres();
     return (
@@ -35,7 +44,7 @@ export default class MovieCard extends Component {
           <p className="film-card__release">{releaseDate}</p>
           <ul className="film-card__genre">{genreNames}</ul>
           <p className="film-card__overview">{overview}</p>
-          <Rate allowHalf defaultValue={0} count={10} />
+          <Rate className="film-card__stars" allowHalf count={10} value={rating} onChange={this.rateMovie} />
         </div>
       </article>
     );
@@ -44,12 +53,15 @@ export default class MovieCard extends Component {
 
 MovieCard.propTypes = {
   genreData: PropTypes.objectOf(PropTypes.string).isRequired,
-  moviesList: PropTypes.shape({
+  guestSessionId: PropTypes.string.isRequired,
+  updateRating: PropTypes.func.isRequired,
+  movie: PropTypes.shape({
     id: PropTypes.number,
     posterPath: PropTypes.string,
     title: PropTypes.string,
     releaseDate: PropTypes.string,
     overview: PropTypes.string,
-    genreIDs: PropTypes.arrayOf(PropTypes.number),
+    rating: PropTypes.string,
+    genreIds: PropTypes.arrayOf(PropTypes.number),
   }).isRequired,
 };

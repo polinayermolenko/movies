@@ -12,8 +12,6 @@ export default class App extends Component {
 
   genreData = null;
 
-  sessionId = null;
-
   state = {
     moviesList: null,
     page: null,
@@ -23,6 +21,7 @@ export default class App extends Component {
     hasData: false,
     loadingPage: true,
     search: null,
+    guestSessionId: null,
   };
 
   componentDidMount() {
@@ -32,10 +31,7 @@ export default class App extends Component {
       });
     }, 1000);
 
-    this.movies.getSessionId().then((body) => {
-      this.sessionId = body;
-      return this.sessionId;
-    });
+    this.movies.getSessionId().then((guestSessionId) => this.setState({ guestSessionId }));
 
     this.movies.getGenres().then((body) => {
       this.genreData = body.reduce((acc, cur) => ({ ...acc, [cur.id]: cur.name }), {});
@@ -91,12 +87,31 @@ export default class App extends Component {
     this.updateMovies(search);
   }, 500);
 
+  updateRating = (guestSessionId, id, rating) => {
+    this.movies.getRatedMovies(guestSessionId).then(() => {
+      this.setState(({ moviesList }) => {
+        const newMoviesList = moviesList.map((item) => {
+          if (item.id === id) {
+            return { ...item, rating };
+          }
+          return item;
+        });
+        return {
+          moviesList: newMoviesList,
+        };
+      });
+    });
+  };
+
   updateMovies = (search, value) => {
-    this.movies.getMoviesBySearch(search, value).then(this.onMoviesLoaded).catch(this.onError);
+    this.movies
+      .getMoviesBySearch(search, value)
+      .then((body) => this.onMoviesLoaded(body))
+      .catch(this.onError);
   };
 
   render() {
-    const { moviesList, loading, error, hasData, loadingPage, page, totalResults } = this.state;
+    const { moviesList, loading, error, hasData, loadingPage, page, totalResults, guestSessionId } = this.state;
     const { TabPane } = Tabs;
 
     if (loadingPage) {
@@ -105,7 +120,14 @@ export default class App extends Component {
 
     const errorMessage = error && <Alert message="Error" description="Couldn't find the movie" type="error" showIcon />;
     const spinner = loading && <Spin tip="Loading ..." />;
-    const content = hasData && !(loading || error) && <MovieList moviesList={moviesList} genreData={this.genreData} />;
+    const content = hasData && !(loading || error) && (
+      <MovieList
+        moviesList={moviesList}
+        genreData={this.genreData}
+        guestSessionId={guestSessionId}
+        updateRating={this.updateRating}
+      />
+    );
 
     return (
       <main className="container">
