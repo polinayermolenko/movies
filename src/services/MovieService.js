@@ -41,11 +41,18 @@ export default class MovieService {
     }
   }
 
-  async getRatedMovies(guestSessionId) {
+  async getRatedMovies(guestSessionId, page = 1) {
     const ratedMovies = await this.getResponse(
-      `${this.apiBase}guest_session/${guestSessionId}/rated/movies?${this.apiKey}&sort_by=created_at.asc`
+      `${this.apiBase}guest_session/${guestSessionId}/rated/movies?${this.apiKey}&page=${page}&sort_by=created_at.asc`
     );
-    return ratedMovies.results.map(this.transformMovie);
+
+    const moviesData = {
+      page: ratedMovies.page,
+      totalRatedResults: ratedMovies.total_results,
+    };
+
+    const moviesResults = ratedMovies.results.map(this.transformMovie);
+    return { ...moviesData, results: moviesResults };
   }
 
   async getMoviesBySearch(search, page = 1) {
@@ -88,13 +95,14 @@ export default class MovieService {
   transformMovie = (movie) => {
     const copyMovie = { ...movie };
     const imgBase = `https://image.tmdb.org/t/p/w500`;
-    let posterPath = copyMovie.poster_path;
+
+    const { id, title, genre_ids: genreIds, rating, vote_average: voteAverage } = copyMovie;
+    let { poster_path: posterPath, release_date: releaseDate, overview } = copyMovie;
 
     posterPath = posterPath ? `${imgBase}${posterPath}` : noImage;
 
-    const overview = this.cutText(copyMovie.overview);
+    overview = this.cutText(overview);
 
-    let releaseDate = copyMovie.release_date;
     if (!releaseDate) {
       releaseDate = '';
     } else {
@@ -102,16 +110,17 @@ export default class MovieService {
     }
 
     return {
-      id: movie.id,
+      id,
       posterPath,
-      title: movie.title,
-      genreIds: movie.genre_ids,
+      title,
+      genreIds,
       releaseDate,
       overview,
-      rating: movie.rating,
+      rating,
+      voteAverage,
     };
   };
 }
 
-// const mov = new MovieService();
-// mov.getMoviesBySearch('nokpl[kohjo[').then(body=> console.log(body));
+// const mov=new MovieService();
+// mov.getRatedMovies(`a91dcede53fc273821585ee5e60b93ed`, 1).then(body => console.log(body));

@@ -30,22 +30,43 @@ export default class MovieCard extends Component {
     });
   };
 
+  changeVoteAverage = (voteAverage) => {
+    let voting;
+    if (voteAverage <= 3) {
+      voting = 'low';
+    } else if (voteAverage <= 5) {
+      voting = 'middle';
+    } else if (voteAverage <= 7) {
+      voting = 'high';
+    } else {
+      voting = 'top';
+    }
+
+    return voting;
+  };
+
   render() {
     const {
-      // eslint-disable-next-line react/prop-types
-      movie: { overview, title, releaseDate, posterPath, rating },
+      movie: { overview, title, releaseDate, posterPath, rating, voteAverage },
     } = this.props;
     const genreNames = this.transformGenres();
+    const votingModificator = this.changeVoteAverage(voteAverage);
     return (
       <article className="film-card">
-        <img className="film-card__img" src={`${posterPath}`} alt="Film" />
+        <div className="film-card__img-container">
+          <img className="film-card__img" src={`${posterPath}`} alt="Film" />
+        </div>
+
         <div className="film-card__description">
-          <h2 className="film-card__title">{title}</h2>
+          <div className="film-card__rating">
+            <h2 className="film-card__title">{title}</h2>
+            <span className={`film-card__voting film-card__voting--${votingModificator}`}>{voteAverage}</span>
+          </div>
           <p className="film-card__release">{releaseDate}</p>
           <ul className="film-card__genre">{genreNames}</ul>
-          <p className="film-card__overview">{overview}</p>
-          <Rate className="film-card__stars" allowHalf count={10} value={rating} onChange={this.rateMovie} />
         </div>
+        <p className="film-card__overview">{overview}</p>
+        <Rate className="film-card__stars" allowHalf count={10} value={rating} onChange={this.rateMovie} />
       </article>
     );
   }
@@ -61,7 +82,8 @@ MovieCard.propTypes = {
     title: PropTypes.string,
     releaseDate: PropTypes.string,
     overview: PropTypes.string,
-    rating: PropTypes.string,
+    rating: PropTypes.number,
+    voteAverage: PropTypes.number,
     genreIds: PropTypes.arrayOf(PropTypes.number),
   }).isRequired,
 };

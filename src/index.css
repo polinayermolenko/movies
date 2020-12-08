@@ -28,7 +28,7 @@ img {
 .container {
   margin: 0 auto;
   padding-bottom: 20px;
-  width: 1010px;
+  width: 1030px;
   background-color: #FFFFFF;
   box-sizing: border-box;
 }
@@ -55,16 +55,14 @@ img {
   box-sizing: border-box;
 }
 
-.film-card__img {
-  min-height: 281px;
-  width: 183px;
-  margin-right: 10px;
-}
-
 .films-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px; 
+  /* display: grid;
+  grid-gap: 30px;
+  grid-template-columns: repeat(2, 1fr); */
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: 100%;
   margin: 0;
   padding: 0;
   font-family: 'Inter', Arial, sans-serif;
@@ -72,7 +70,80 @@ img {
 }
 
 .films-list__item {
-  width: 485px;
+  width: 49%;
+  /* max-width: 500px; */
+  margin-bottom: 35px;
+}
+
+.film-card {
+  display: grid;
+  grid-template-areas: "img info"
+                       "img overview"
+                       "img rating";
+  grid-template-rows: 1fr 1fr 15%;
+  grid-template-columns: 2fr 4fr;
+  grid-gap: 5px;
+  grid-column-gap: 10px;
+  max-height: 300px;
+  padding: 10px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.film-card__img-container {
+  grid-area: img;
+}
+
+.film-card__img {
+  min-height: 280px;
+}
+
+.film-card__description {
+  grid-area: info;
+}
+
+.film-card__rating {
+  display: flex;
+  justify-content: space-between;
+}
+
+.film-card__title {
+  width: 65%;
+  margin: 0;
+  padding: 0;
+  font-size: 1.2rem;
+  font-weight: normal;
+}
+
+.film-card__voting {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 45px;
+  height: 45px;
+  border: 3px solid #000000;
+  border-radius: 50%;
+}
+
+.film-card__voting--low {
+  border-color: #E90000;
+}
+
+.film-card__voting--middle {
+  border-color: #E97E00;
+}
+
+.film-card__voting--high {
+  border-color: #E9D100;
+}
+
+.film-card__voting--top {
+  border-color:#66E900;
+}
+
+.film-card__release {
+  font-size: 15px;
+  line-height: 22px;
 }
 
 .film-card__genre {  
@@ -94,35 +165,19 @@ img {
   border-radius: 2px;
 }
 
-.film-card {
-  display: flex;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  box-sizing: border-box;
-}
-
-.film-card__title {
-  font-size: 20px;
-  font-weight: normal;
-}
-
-.film-card__release {
-  font-size: 15px;
-  line-height: 22px;
-}
-
 .film-card__overview {
+  grid-area: overview;
   font-size: 14px;
 }
 
-.film-card__description {
-  padding: 10px;
+.film-card__stars {
+  grid-area: rating;
 }
 
 .ant-alert {
   margin-top: 100px;
   width: 500px;
 }
-
 
 .ant-alert .ant-alert-description {
   font-size: 20px;

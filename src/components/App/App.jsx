@@ -22,6 +22,9 @@ export default class App extends Component {
     loadingPage: true,
     search: null,
     guestSessionId: null,
+    isTabRated: false,
+    ratedFilms: null,
+    totalRatedResults: null,
   };
 
   componentDidMount() {
@@ -54,6 +57,18 @@ export default class App extends Component {
     });
   };
 
+  onRatedMoviesLoaded = (moviesList) => {
+    const { results, page, totalRatedResults } = moviesList;
+    this.setState({
+      isTabRated: true,
+      ratedFilms: results,
+      page,
+      totalRatedResults,
+      loading: false,
+      hasData: true,
+    });
+  };
+
   onError = () => {
     this.setState({
       error: true,
@@ -62,12 +77,18 @@ export default class App extends Component {
   };
 
   onPageChange = (value) => {
-    const { search } = this.state;
+    const { search, isTabRated } = this.state;
     this.setState({
       loading: true,
       error: false,
+      page: value,
     });
-    this.updateMovies(search, value);
+
+    if (isTabRated) {
+      this.rateMovies(value);
+    } else {
+      this.updateMovies(search, value);
+    }
   };
 
   onSearchChange = debounce((search) => {
@@ -87,6 +108,13 @@ export default class App extends Component {
     this.updateMovies(search);
   }, 500);
 
+  updateMovies = (search, value) => {
+    this.movies
+      .getMoviesBySearch(search, value)
+      .then((body) => this.onMoviesLoaded(body))
+      .catch(this.onError);
+  };
+
   updateRating = (guestSessionId, id, rating) => {
     this.movies.getRatedMovies(guestSessionId).then(() => {
       this.setState(({ moviesList }) => {
@@ -103,15 +131,37 @@ export default class App extends Component {
     });
   };
 
-  updateMovies = (search, value) => {
+  rateMovies = (page = 1) => {
+    const { guestSessionId } = this.state;
     this.movies
-      .getMoviesBySearch(search, value)
-      .then((body) => this.onMoviesLoaded(body))
+      .getRatedMovies(guestSessionId, page)
+      .then((body) => this.onRatedMoviesLoaded(body))
       .catch(this.onError);
   };
 
+  toggleRatedMode = (activeKey) => {
+    if (activeKey === 'Rated') {
+      this.rateMovies();
+    } else {
+      const { isTabRated } = this.state;
+      this.setState(() => ({ isTabRated: !isTabRated }));
+    }
+  };
+
   render() {
-    const { moviesList, loading, error, hasData, loadingPage, page, totalResults, guestSessionId } = this.state;
+    const {
+      moviesList,
+      loading,
+      error,
+      hasData,
+      loadingPage,
+      page,
+      totalResults,
+      totalRatedResults,
+      guestSessionId,
+      isTabRated,
+      ratedFilms,
+    } = this.state;
     const { TabPane } = Tabs;
 
     if (loadingPage) {
@@ -122,7 +172,7 @@ export default class App extends Component {
     const spinner = loading && <Spin tip="Loading ..." />;
     const content = hasData && !(loading || error) && (
       <MovieList
-        moviesList={moviesList}
+        moviesList={isTabRated ? ratedFilms : moviesList}
         genreData={this.genreData}
         guestSessionId={guestSessionId}
         updateRating={this.updateRating}
@@ -131,28 +181,31 @@ export default class App extends Component {
 
     return (
       <main className="container">
-        <Tabs defaultActiveKey="1" size="large" centered>
-          <TabPane tab="Search" key="1">
-            <Search onSearch={this.onSearchChange} />
-            <section className="films">
-              {spinner}
-              {content}
-              {errorMessage}
-            </section>
-            {hasData && !(loading || error) && (
-              <Pagination
-                current={page}
-                total={totalResults}
-                pageSize={20}
-                showSizeChanger={false}
-                onChange={this.onPageChange}
-              />
-            )}
-          </TabPane>
-          <TabPane tab="Rated" key="2">
-            <Spin tip="Hello!" />
-          </TabPane>
+        <Tabs
+          defaultActiveKey="Search"
+          activeKey={isTabRated ? 'Rated' : 'Search'}
+          size="large"
+          onChange={this.toggleRatedMode}
+          centered
+        >
+          <TabPane tab="Search" key="Search" />
+          <TabPane tab="Rated" key="Rated" />
         </Tabs>
+        {!isTabRated && <Search onSearch={this.onSearchChange} />}
+        <section className="films">
+          {spinner}
+          {content}
+          {errorMessage}
+        </section>
+        {hasData && !(loading || error) && (
+          <Pagination
+            current={page}
+            total={isTabRated ? totalRatedResults : totalResults}
+            pageSize={20}
+            showSizeChanger={false}
+            onChange={this.onPageChange}
+          />
+        )}
       </main>
     );
   }
