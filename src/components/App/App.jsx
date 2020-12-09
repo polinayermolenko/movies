@@ -4,6 +4,7 @@ import { debounce } from 'lodash';
 import MovieList from '../MovieList/MovieList';
 import MovieService from '../../services/MovieService';
 import Search from '../Search/Search';
+import { GenreProvider } from '../GenreContext/GenreContext';
 
 export default class App extends Component {
   movies = new MovieService();
@@ -25,6 +26,7 @@ export default class App extends Component {
     isTabRated: false,
     ratedFilms: null,
     totalRatedResults: null,
+    cache: {},
   };
 
   componentDidMount() {
@@ -46,26 +48,28 @@ export default class App extends Component {
     clearTimeout(this.timerId);
   }
 
-  onMoviesLoaded = (moviesList) => {
-    const { results, page, totalResults } = moviesList;
+  onMoviesLoaded = ({ results, page, totalResults }) => {
+    const { cache } = this.state;
+    const updatedResults = this.updateData(results, cache);
+
     this.setState({
-      moviesList: results,
+      moviesList: updatedResults,
       page,
       totalResults,
       loading: false,
-      hasData: true,
+      error: false,
+      hasData: !!results.length,
     });
   };
 
-  onRatedMoviesLoaded = (moviesList) => {
-    const { results, page, totalRatedResults } = moviesList;
+  onRatedMoviesLoaded = ({ results, page, totalRatedResults }) => {
     this.setState({
       isTabRated: true,
       ratedFilms: results,
       page,
       totalRatedResults,
       loading: false,
-      hasData: true,
+      hasData: !!results.length,
     });
   };
 
@@ -115,20 +119,30 @@ export default class App extends Component {
       .catch(this.onError);
   };
 
-  updateRating = (guestSessionId, id, rating) => {
-    this.movies.getRatedMovies(guestSessionId).then(() => {
-      this.setState(({ moviesList }) => {
-        const newMoviesList = moviesList.map((item) => {
-          if (item.id === id) {
-            return { ...item, rating };
-          }
-          return item;
-        });
-        return {
-          moviesList: newMoviesList,
-        };
-      });
-    });
+  updateData = (data, cache) => {
+    for (const key in cache) {
+      if (!Object.prototype.hasOwnProperty.call(cache, key)) {
+        return data;
+      }
+    }
+
+    return data.map((movie) => cache[movie.id] || movie);
+  };
+
+  updateRating = (movie, rating) => {
+    const { moviesList, ratedFilms, isTabRated, cache } = this.state;
+    const updatedCache = { ...cache };
+    updatedCache[movie.id] = { ...movie, rating };
+
+    const updatedData = this.updateData(moviesList, updatedCache);
+
+    if (isTabRated) {
+      const updatedRatedData = this.updateData(ratedFilms, updatedCache);
+      this.setState(() => ({ moviesList: updatedData, ratedFilms: updatedRatedData, cache: updatedCache }));
+      return;
+    }
+
+    this.setState(() => ({ moviesList: updatedData, cache: updatedCache }));
   };
 
   rateMovies = (page = 1) => {
@@ -173,7 +187,6 @@ export default class App extends Component {
     const content = hasData && !(loading || error) && (
       <MovieList
         moviesList={isTabRated ? ratedFilms : moviesList}
-        genreData={this.genreData}
         guestSessionId={guestSessionId}
         updateRating={this.updateRating}
       />
@@ -193,9 +206,11 @@ export default class App extends Component {
         </Tabs>
         {!isTabRated && <Search onSearch={this.onSearchChange} />}
         <section className="films">
-          {spinner}
-          {content}
-          {errorMessage}
+          <GenreProvider value={this.genreData}>
+            {spinner}
+            {content}
+            {errorMessage}
+          </GenreProvider>
         </section>
         {hasData && !(loading || error) && (
           <Pagination

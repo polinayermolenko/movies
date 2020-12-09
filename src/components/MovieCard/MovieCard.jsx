@@ -2,23 +2,24 @@ import React, { Component } from 'react';
 import { Rate } from 'antd';
 import PropTypes from 'prop-types';
 import MovieService from '../../services/MovieService';
+import { GenreConsumer } from '../GenreContext/GenreContext';
 
 export default class MovieCard extends Component {
   movies = new MovieService();
 
   rateMovie = (rating) => {
     const {
+      movie,
       movie: { id },
       guestSessionId,
       updateRating,
     } = this.props;
-    this.movies.postMovieRating(id, guestSessionId, rating).then(() => updateRating(guestSessionId, id, rating));
+    this.movies.postMovieRating(id, guestSessionId, rating).then(() => updateRating(movie, rating));
   };
 
-  transformGenres = () => {
+  transformGenres = (genreData) => {
     const {
       movie: { genreIds },
-      genreData,
     } = this.props;
 
     return genreIds.map((id) => {
@@ -49,31 +50,38 @@ export default class MovieCard extends Component {
     const {
       movie: { overview, title, releaseDate, posterPath, rating, voteAverage },
     } = this.props;
-    const genreNames = this.transformGenres();
-    const votingModificator = this.changeVoteAverage(voteAverage);
-    return (
-      <article className="film-card">
-        <div className="film-card__img-container">
-          <img className="film-card__img" src={`${posterPath}`} alt="Film" />
-        </div>
 
-        <div className="film-card__description">
-          <div className="film-card__rating">
-            <h2 className="film-card__title">{title}</h2>
-            <span className={`film-card__voting film-card__voting--${votingModificator}`}>{voteAverage}</span>
-          </div>
-          <p className="film-card__release">{releaseDate}</p>
-          <ul className="film-card__genre">{genreNames}</ul>
-        </div>
-        <p className="film-card__overview">{overview}</p>
-        <Rate className="film-card__stars" allowHalf count={10} value={rating} onChange={this.rateMovie} />
-      </article>
+    const votingModificator = this.changeVoteAverage(voteAverage);
+
+    return (
+      <GenreConsumer>
+        {(genreData) => {
+          const genreNames = this.transformGenres(genreData);
+          return (
+            <article className="film-card">
+              <div className="film-card__img-container">
+                <img className="film-card__img" src={`${posterPath}`} alt="Film" />
+              </div>
+
+              <div className="film-card__description">
+                <div className="film-card__rating">
+                  <h2 className="film-card__title">{title}</h2>
+                  <span className={`film-card__voting film-card__voting--${votingModificator}`}>{voteAverage}</span>
+                </div>
+                <p className="film-card__release">{releaseDate}</p>
+                <ul className="film-card__genre">{genreNames}</ul>
+              </div>
+              <p className="film-card__overview">{overview}</p>
+              <Rate className="film-card__stars" allowHalf count={10} value={rating} onChange={this.rateMovie} />
+            </article>
+          );
+        }}
+      </GenreConsumer>
     );
   }
 }
 
 MovieCard.propTypes = {
-  genreData: PropTypes.objectOf(PropTypes.string).isRequired,
   guestSessionId: PropTypes.string.isRequired,
   updateRating: PropTypes.func.isRequired,
   movie: PropTypes.shape({

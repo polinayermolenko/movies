@@ -121,6 +121,3 @@ export default class MovieService {
     };
   };
 }
-
-// const mov=new MovieService();
-// mov.getRatedMovies(`a91dcede53fc273821585ee5e60b93ed`, 1).then(body => console.log(body));
