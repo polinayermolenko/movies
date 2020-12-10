@@ -25,13 +25,30 @@ img {
   max-height: 100%;
   }
 
-.container {
+@media(min-width: 320px) {
+  .container {
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+@media(min-width: 768px) {
+  .container {
   margin: 0 auto;
+  padding: 0;
   padding-bottom: 20px;
-  width: 1030px;
+  width: 768px;
   background-color: #FFFFFF;
   box-sizing: border-box;
+  }
 }
+
+@media(min-width: 1000px) {
+  .container {
+  width: 1000px;
+  }
+}
+
 .search {
   width: 100%;
   margin-bottom: 32px; 
@@ -56,9 +73,6 @@ img {
 }
 
 .films-list {
-  /* display: grid;
-  grid-gap: 30px;
-  grid-template-columns: repeat(2, 1fr); */
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -70,13 +84,39 @@ img {
 }
 
 .films-list__item {
-  width: 49%;
-  /* max-width: 500px; */
   margin-bottom: 35px;
 }
 
+@media(min-width: 768px) {
+  .films-list__item {
+    width: 70%;
+    margin: 0 auto 35px;
+  }
+}
+
+@media(min-width: 1000px) {
+  .films-list__item {
+    width: 49%;
+  }
+}
+
 .film-card {
+  box-sizing: border-box;
   display: grid;
+  grid-template-areas: "img info"
+                       "overview overview"
+                       "rating rating";
+
+  grid-template-rows: auto auto 40px;
+  grid-template-columns: 1fr 2fr;
+  grid-gap: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@media(min-width: 480px) {
+ .film-card {
   grid-template-areas: "img info"
                        "img overview"
                        "img rating";
@@ -86,17 +126,19 @@ img {
   grid-column-gap: 10px;
   max-height: 300px;
   padding: 10px;
-  box-sizing: border-box;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+ }
 }
 
 .film-card__img-container {
   grid-area: img;
 }
 
-.film-card__img {
+@media(min-width: 768px) {
+  .film-card__img {
   min-height: 280px;
+ }
 }
+
 
 .film-card__description {
   grid-area: info;
@@ -166,11 +208,14 @@ img {
 }
 
 .film-card__overview {
+  margin: 0;
   grid-area: overview;
   font-size: 14px;
 }
 
 .film-card__stars {
+  display: flex;
+  justify-content: flex-end;
   grid-area: rating;
 }
 
