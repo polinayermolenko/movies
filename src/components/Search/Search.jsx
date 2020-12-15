@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import './Search.css';
 
 export default class Search extends Component {
   state = {
     search: '',
   };
 
-  onSeachChange = (evt) => {
+  onSearchChange = (evt) => {
     const { onSearch } = this.props;
     const search = evt.target.value;
     this.setState({ search });
@@ -20,7 +21,7 @@ export default class Search extends Component {
         type="text"
         className="search"
         placeholder="Type to search..."
-        onChange={this.onSeachChange}
+        onChange={this.onSearchChange}
         value={search}
       />
     );

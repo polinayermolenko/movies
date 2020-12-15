@@ -1,0 +1,71 @@
+@import 'antd/dist/antd.css';
+
+@media(min-width: 320px) {
+  .container {
+    width: 100%;
+    padding: 10px;
+  }
+}
+  
+@media(min-width: 768px) {
+  .container {
+    margin: 0 auto;
+    padding: 0;
+    padding-bottom: 20px;
+    width: 768px;
+    background-color: #FFFFFF;
+    box-sizing: border-box;
+  }
+}
+  
+@media(min-width: 1000px) {
+  .container {
+    width: 1000px;
+  }
+}
+
+.films {
+  display: flex;
+  justify-content: center; 
+  box-sizing: border-box;
+}
+
+.ant-alert {
+  margin-top: 100px;
+  width: 500px;
+}
+
+.ant-alert .ant-alert-description {
+  font-size: 20px;
+  font-style: italic;
+}
+
+.ant-spin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+}
+
+.ant-spin .ant-spin-dot {
+  font-size: 110px;
+}
+
+.ant-spin-dot .ant-spin-dot-item {
+  width: 30px;
+  height: 30px;
+}
+
+.ant-spin-text {
+  margin-top: 20px;
+}
+
+.ant-pagination {
+  display: flex;
+  justify-content: center;
+}
+
+.container .ant-pagination {
+  margin-top: 40px;
+} 

@@ -1,0 +1,27 @@
+.films-list {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', Arial, sans-serif;
+    list-style: none;
+  }
+  
+  .films-list__item {
+    margin-bottom: 35px;
+  }
+  
+  @media(min-width: 768px) {
+    .films-list__item {
+      width: 70%;
+      margin: 0 auto 35px;
+    }
+  }
+  
+  @media(min-width: 1000px) {
+    .films-list__item {
+      width: 49%;
+    }
+  }

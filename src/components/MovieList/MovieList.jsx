@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import MovieCard from '../MovieCard/MovieCard';
+import './MovieList.css';
 
 const MovieList = ({ moviesList, guestSessionId, updateRating }) => {
   const movies = moviesList.map((item) => {

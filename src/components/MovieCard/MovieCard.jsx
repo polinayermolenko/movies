@@ -3,6 +3,7 @@ import { Rate } from 'antd';
 import PropTypes from 'prop-types';
 import MovieService from '../../services/MovieService';
 import { GenreConsumer } from '../GenreContext/GenreContext';
+import './MovieCard.css';
 
 export default class MovieCard extends Component {
   movies = new MovieService();

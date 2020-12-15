@@ -5,6 +5,7 @@ import MovieList from '../MovieList/MovieList';
 import MovieService from '../../services/MovieService';
 import Search from '../Search/Search';
 import { GenreProvider } from '../GenreContext/GenreContext';
+import './App.css';
 
 export default class App extends Component {
   movies = new MovieService();
