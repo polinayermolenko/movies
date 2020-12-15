@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import MovieCard from '../MovieCard/MovieCard';
 import './MovieList.css';
 
-const MovieList = ({ moviesList, guestSessionId, updateRating }) => {
+const MovieList = ({ moviesList, guestSessionId, updateRating, onError }) => {
   const movies = moviesList.map((item) => {
     return (
       <li key={item.id} className="films-list__item">
-        <MovieCard movie={item} guestSessionId={guestSessionId} updateRating={updateRating} />
+        <MovieCard movie={item} guestSessionId={guestSessionId} updateRating={updateRating} onError={onError} />
       </li>
     );
   });
@@ -21,4 +21,5 @@ MovieList.propTypes = {
   moviesList: PropTypes.arrayOf(PropTypes.object).isRequired,
   guestSessionId: PropTypes.string.isRequired,
   updateRating: PropTypes.func.isRequired,
+  onError: PropTypes.func.isRequired,
 };

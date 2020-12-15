@@ -37,7 +37,7 @@ export default class MovieService {
     );
 
     if (!response.ok) {
-      throw new Error();
+      throw new Error(`Could not find the movie`);
     }
   }
 

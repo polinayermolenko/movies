@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { Rate } from 'antd';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import MovieService from '../../services/MovieService';
 import { GenreConsumer } from '../GenreContext/GenreContext';
+
 import './MovieCard.css';
 
 export default class MovieCard extends Component {
@@ -14,8 +16,12 @@ export default class MovieCard extends Component {
       movie: { id },
       guestSessionId,
       updateRating,
+      onError,
     } = this.props;
-    this.movies.postMovieRating(id, guestSessionId, rating).then(() => updateRating(movie, rating));
+    this.movies
+      .postMovieRating(id, guestSessionId, rating)
+      .then(() => updateRating(movie, rating))
+      .catch(onError);
   };
 
   transformGenres = (genreData) => {
@@ -32,27 +38,17 @@ export default class MovieCard extends Component {
     });
   };
 
-  changeVoteAverage = (voteAverage) => {
-    let voting;
-    if (voteAverage <= 3) {
-      voting = 'low';
-    } else if (voteAverage <= 5) {
-      voting = 'middle';
-    } else if (voteAverage <= 7) {
-      voting = 'high';
-    } else {
-      voting = 'top';
-    }
-
-    return voting;
-  };
-
   render() {
     const {
       movie: { overview, title, releaseDate, posterPath, rating, voteAverage },
     } = this.props;
 
-    const votingModificator = this.changeVoteAverage(voteAverage);
+    const votingClass = classNames('film-card__voting', {
+      'film-card__voting--low': voteAverage <= 3,
+      'film-card__voting--middle': voteAverage <= 5,
+      'film-card__voting--high': voteAverage <= 7,
+      'film-card__voting--top': voteAverage > 7,
+    });
 
     return (
       <GenreConsumer>
@@ -67,7 +63,7 @@ export default class MovieCard extends Component {
               <div className="film-card__description">
                 <div className="film-card__rating">
                   <h2 className="film-card__title">{title}</h2>
-                  <span className={`film-card__voting film-card__voting--${votingModificator}`}>{voteAverage}</span>
+                  <span className={votingClass}>{voteAverage}</span>
                 </div>
                 <p className="film-card__release">{releaseDate}</p>
                 <ul className="film-card__genre">{genreNames}</ul>
@@ -85,6 +81,7 @@ export default class MovieCard extends Component {
 MovieCard.propTypes = {
   guestSessionId: PropTypes.string.isRequired,
   updateRating: PropTypes.func.isRequired,
+  onError: PropTypes.func.isRequired,
   movie: PropTypes.shape({
     id: PropTypes.number,
     posterPath: PropTypes.string,

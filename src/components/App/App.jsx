@@ -190,6 +190,7 @@ export default class App extends Component {
         moviesList={isTabRated ? ratedFilms : moviesList}
         guestSessionId={guestSessionId}
         updateRating={this.updateRating}
+        onError={this.onError}
       />
     );
 
