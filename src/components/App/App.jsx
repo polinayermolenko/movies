@@ -5,10 +5,13 @@ import MovieList from '../MovieList/MovieList';
 import MovieService from '../../services/MovieService';
 import Search from '../Search/Search';
 import { GenreProvider } from '../GenreContext/GenreContext';
+import SessionIdService from '../../services/SessionIdService';
 import './App.css';
 
 export default class App extends Component {
   movies = new MovieService();
+
+  sessionIdService = new SessionIdService();
 
   timerId = null;
 
@@ -37,7 +40,7 @@ export default class App extends Component {
       });
     }, 1000);
 
-    this.movies.getSessionId().then((guestSessionId) => this.setState({ guestSessionId }));
+    this.sessionIdService.getSessionId().then((guestSessionId) => this.setState({ guestSessionId }));
 
     this.movies.getGenres().then((body) => {
       this.genreData = body.reduce((acc, cur) => ({ ...acc, [cur.id]: cur.name }), {});

@@ -2,13 +2,12 @@ import React, { Component } from 'react';
 import { Rate } from 'antd';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import MovieService from '../../services/MovieService';
 import { GenreConsumer } from '../GenreContext/GenreContext';
-
+import MovieRatingService from '../../services/MovieRatingService';
 import './MovieCard.css';
 
 export default class MovieCard extends Component {
-  movies = new MovieService();
+  movieRatingService = new MovieRatingService();
 
   rateMovie = (rating) => {
     const {
@@ -18,7 +17,7 @@ export default class MovieCard extends Component {
       updateRating,
       onError,
     } = this.props;
-    this.movies
+    this.movieRatingService
       .postMovieRating(id, guestSessionId, rating)
       .then(() => updateRating(movie, rating))
       .catch(onError);
