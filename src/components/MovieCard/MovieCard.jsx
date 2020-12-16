@@ -3,11 +3,12 @@ import { Rate } from 'antd';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { GenreConsumer } from '../GenreContext/GenreContext';
-import MovieRatingService from '../../services/MovieRatingService';
+
 import './MovieCard.css';
+import BaseService from '../../services/BaseService';
 
 export default class MovieCard extends Component {
-  movieRatingService = new MovieRatingService();
+  baseService = new BaseService();
 
   rateMovie = (rating) => {
     const {
@@ -17,7 +18,7 @@ export default class MovieCard extends Component {
       updateRating,
       onError,
     } = this.props;
-    this.movieRatingService
+    this.baseService
       .postMovieRating(id, guestSessionId, rating)
       .then(() => updateRating(movie, rating))
       .catch(onError);

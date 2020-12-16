@@ -1,7 +1,9 @@
 import BaseService from './BaseService';
-import transformMovie from '../utils/transformMovie';
+import MovieTransformService from './MovieTransformService';
 
 export default class MovieService extends BaseService {
+  movieTransformService = new MovieTransformService();
+
   async getRatedMovies(guestSessionId, page = 1) {
     const ratedMovies = await this.getResponse(
       `${this.apiBase}guest_session/${guestSessionId}/rated/movies?${this.apiKey}&page=${page}&sort_by=created_at.asc`
@@ -12,7 +14,7 @@ export default class MovieService extends BaseService {
       totalRatedResults: ratedMovies.total_results,
     };
 
-    const moviesResults = ratedMovies.results.map(transformMovie);
+    const moviesResults = ratedMovies.results.map(this.movieTransformService.transformMovie);
     return { ...moviesData, results: moviesResults };
   }
 
@@ -30,7 +32,7 @@ export default class MovieService extends BaseService {
       throw new Error(`Couldn't find the movie`);
     }
 
-    const moviesResults = movies.results.map(transformMovie);
+    const moviesResults = movies.results.map(this.movieTransformService.transformMovie);
     return { ...moviesData, results: moviesResults };
   }
 
