@@ -15,20 +15,19 @@ export default class BaseService {
     return body;
   }
 
-  async postMovieRating(id, guestSessionId, rating) {
-    const response = await fetch(
-      `${this.apiBase}movie/${id}/rating?${this.apiKey}&guest_session_id=${guestSessionId}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-        },
-        body: JSON.stringify({ value: rating }),
-      }
-    );
-
-    if (!response.ok) {
+  async postResponse(url, rating) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify({ value: rating }),
+    });
+    if (!res.ok) {
       throw new Error(`Could not find the movie`);
     }
+
+    const body = await res.json();
+    return body;
   }
 }
